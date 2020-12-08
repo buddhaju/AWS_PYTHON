@@ -1,0 +1,21 @@
+import json
+import boto3
+
+print('Loading function to read S3 Bucket and Objects')
+
+s3 = boto3.resource('s3')
+
+def lambda_handler(event, context):
+  bucket =  'buddha-emr'
+  key = 'json3/lambdatest/students.json'
+  try:
+   obj = s3.Object(bucket, key)
+   data = obj.get()['Body'].read().decode('utf-8')
+   json_data = json.loads(data)
+
+   print(json_data)
+
+ except Exception as e:
+        print(e)
+        print('Error getting object {} from bucket {}. Make sure they exist and your bucket is in the same region as this function.'.format(key, bucket))
+        raise e
