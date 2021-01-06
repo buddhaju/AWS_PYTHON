@@ -1,0 +1,79 @@
+login with ..
+hadoop@
+
+
+sudo sed -i -e '$a\export PYSPARK_PYTHON=/usr/bin/python3' /etc/spark/conf/spark-env.sh
+
+[hadoop@ip-172-31-29-180 scripts]$ pyspark
+Python 3.7.9 (default, Aug 27 2020, 21:59:41)
+[GCC 7.3.1 20180712 (Red Hat 7.3.1-9)] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+20/11/09 08:16:28 WARN HiveConf: HiveConf of name hive.server2.thrift.url does not exist
+20/11/09 08:16:30 WARN Client: Neither spark.yarn.jars nor spark.yarn.archive is set, falling back to uploading libraries under SPARK_HOME.
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 2.4.6-amzn-0
+      /_/
+
+Using Python version 3.7.9 (default, Aug 27 2020 21:59:
+
+
+spark-submit hello.py
+
+ pyspark <hello.py
+
+
+----------------------
+
+https://stackoverflow.com/questions/41144218/pyspark-creating-a-data-frame-from-text-file
+
+---------------------
+
+>>> log_txt=sc.textFile("/user/hadoop/sample1.txt")
+>>> header = log_txt.first()
+>>> log_txt = log_txt.filter(lambda line: line != header)
+>>> log_txt.take(10)
+['0\\tdog\\t20160906182001\\tgoogle.com', '1\\tcat\\t20151231120504\\tamazon.com']
+>>>
+>>>
+>>>
+>>> temp_var = log_txt.map(lambda k: k.split("\\t"))
+>>> log_df=temp_var.toDF(header.split("\\t"))
+>>> log_df.show()
++------+------+--------------+----------+
+|field1|field2|        field3|    field4|
++------+------+--------------+----------+
+|     0|   dog|20160906182001|google.com|
+|     1|   cat|20151231120504|amazon.com|
++------+------+--------------+----------+
+
+
+hadoop fs -put -f /home/hadoop/scripts/sample2.txt /user/hadoop/sample2.txt
+
+
+
+
+
+log_txt=sc.textFile("/user/hadoop/sample2.txt")
+header = log_txt.first()
+log_txt = log_txt.filter(lambda line: line != header)
+log_txt.take(20)
+
+
+
+temp_var = log_txt.map(lambda k: k.split("\ "))
+log_df=temp_var.toDF(header.split("\ "))
+log_df.show()
+
+
+
++---------------------------+
+|field1 field2 field3 field4|
++---------------------------+
+|       0 dog 20160906182...|
+|       1 cat 20151231120...|
++---------------------------+
