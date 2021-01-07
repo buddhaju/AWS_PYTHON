@@ -1,0 +1,37 @@
+import boto3
+import json
+from datetime import datetime
+import time
+
+my_stream_name = 'buddha1'
+
+kinesis_client = boto3.client('kinesis', region_name='us-west-2')
+
+response = kinesis_client.describe_stream(StreamName=my_stream_name)
+
+my_shard_id = response['StreamDescription']['Shards'][0]['ShardId']
+
+shard_iterator = kinesis_client.get_shard_iterator(StreamName=my_stream_name,ShardId=my_shard_id,ShardIteratorType='TRIM_HORIZON')
+
+my_shard_iterator = shard_iterator["ShardIterator"]
+
+while 1 == 1:
+    record_response = kinesis_client.get_records(ShardIterator=my_shard_iterator, Limit=500)
+    my_shard_iterator = record_response["NextShardIterator"]
+
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    if len(record_response["Records"]) > 0:
+
+        record_length = len(record_response["Records"])
+        print ("record_length :" +str(record_length))
+        for i in range(record_length):
+
+            print(int(record_length - i), "left")
+            x = record_response["Records"][i]["Data"]
+            x = x.decode("utf8")
+            #json_loaded = json.loads(x)
+            print(x)
+            # if "vocabulary-activity" in json_loaded["errors"][0]["message"]:
+
+            time.sleep(0.25)
+            # print(record_response)

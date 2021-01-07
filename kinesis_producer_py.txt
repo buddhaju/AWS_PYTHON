@@ -1,0 +1,52 @@
+import boto3
+import json
+from datetime import date
+from datetime import datetime
+import random
+import time
+import types
+
+my_stream_name = 'buddha1'
+kinesis_client = boto3.client('kinesis', region_name='us-west-2')
+
+def put_to_stream(msgdata, partition_key):
+
+    put_response = kinesis_client.put_record(
+                        StreamName=my_stream_name,
+                        Data=json.dumps(msgdata),
+                        PartitionKey=partition_key)
+
+def main():
+    partition_value = random.randint(0, 10)
+    partition_value = str(partition_value)
+    now = datetime.now()
+
+    # Read the lines from a file and put each line as message
+    with open("students.json") as json_file:
+      lines=json_file.readlines()
+      for line in lines:
+        #print(line)
+        #print(type(line))
+        # Replace the trailing "," from the string :
+
+        line1 = line.replace('},', '}')
+        #print(line1)
+        line1 = json.loads(line1)
+
+        # Add a timestamp to the message :
+        record_timestamp = now.strftime("%m-%d-%Y %H:%M:%S")
+        line1.update({"record_timestamp" : record_timestamp})
+
+        print(line1)
+
+        put_to_stream(line1,partition_value)
+
+    # wait for 5 second
+    #time.sleep(5)
+
+
+# END of main() :
+# ----------------------
+
+if __name__ == "__main__":
+    main()
