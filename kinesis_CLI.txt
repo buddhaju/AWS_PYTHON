@@ -1,0 +1,82 @@
+
+(env) [ec2-user@ip-172-31-14-203 source_python]$ aws kinesis describe-stream --stream-name buddha1 --region us-west-2
+{
+    "StreamDescription": {
+        "KeyId": null,
+        "EncryptionType": "NONE",
+        "StreamStatus": "ACTIVE",
+        "StreamName": "buddha1",
+        "Shards": [
+            {
+                "ShardId": "shardId-000000000000",
+                "HashKeyRange": {
+                    "EndingHashKey": "340282366920938463463374607431768211455",
+                    "StartingHashKey": "0"
+                },
+                "SequenceNumberRange": {
+                    "StartingSequenceNumber": "49613460338371355793122161443699391406698941104254877698"
+                }
+            }
+        ],
+        "StreamARN": "arn:aws:kinesis:us-west-2:330339685901:stream/buddha1",
+        "EnhancedMonitoring": [
+            {
+                "ShardLevelMetrics": []
+            }
+        ],
+        "StreamCreationTimestamp": 1607578095.0,
+        "RetentionPeriodHours": 24
+    }
+}
+
+
+
+
+(env) [ec2-user@ip-172-31-14-203 source_python]$ aws kinesis describe-stream-summary --stream-name buddha1 --region us-west-2
+{
+    "StreamDescriptionSummary": {
+        "OpenShardCount": 1,
+        "EncryptionType": "NONE",
+        "StreamStatus": "ACTIVE",
+        "StreamName": "buddha1",
+        "ConsumerCount": 0,
+        "StreamARN": "arn:aws:kinesis:us-west-2:330339685901:stream/buddha1",
+        "EnhancedMonitoring": [
+            {
+                "ShardLevelMetrics": []
+            }
+        ],
+        "StreamCreationTimestamp": 1607578095.0,
+        "RetentionPeriodHours": 24
+    }
+}
+
+
+
+(env) [ec2-user@ip-172-31-14-203 source_python]$ aws kinesis put-record \
+>     --stream-name buddha1\
+>     --data "{"name": "Bui", "age": "28", "city": "Bangalore"}" \
+>     --partition-key 1
+{
+    "ShardId": "shardId-000000000000",
+    "SequenceNumber": "49613460338371355793122161443842044653413592141439959042"
+}
+
+
+aws kinesis put-record     --stream-name buddha1    --data "{"name": "JHUMA", "age": "28", "city": "KOLKATA"}"     --partition-key 2
+{
+    "ShardId": "shardId-000000000000",
+    "SequenceNumber": "49613460338371355793122161443843253579233213024087048194"
+}
+
+
+(env) [ec2-user@ip-172-31-14-203 source_python]$ aws kinesis get-shard-iterator --shard-id shardId-000000000000 --shard-iterator-type TRIM_HORIZON --stream-name "buddha1"
+{
+    "ShardIterator": "AAAAAAAAAAHJpV6EZD8PB9rbF9Y0j4hZRg6ammmooD6CRzy8rmVuazW/jSkDzzYWwlptRqA/SsnjQEFBdJ9QHmXZgIRqJmu0Ctsdsm7PBeNr9nEv/oxxggPAD49Esjm/KuAxmyBQ84wqUVwf9jV15MgSl5CIHaKEKQZQg2GCsrZZmA42FTuf3i4hxeEYhl5VYryE6G5LmS91TPUFboySvYkhPFUhgRK7"
+}
+
+
+aws kinesis get-shard-iterator --shard-id shardId-000000000000 --shard-iterator-type TRIM_HORIZON --stream-name "buddha1" --query 'ShardIterator'
+"AAAAAAAAAAG+WnS59t9OkptPNRbkm1uZtfEhU6PaaNLdNE6QORsr0l/dY+GKFaorPAAEg0SQszcDC0jX0nCRl7CMK7VOXIZ81nt+fk/SrkaqJSxTDmPFWI6PiS1JFeptkMMhH8uxpn1AXa4wLzNAlItZOKEf6to3m4Os/QZFdS7yfBu0qdBWoNJQnCTfyKwmoXFCehKOQ1Erc132tC/NyQjfXjb7PwcO"
+
+
