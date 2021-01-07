@@ -1,0 +1,45 @@
+import json
+import boto3
+
+def lambda_handler(event, context):
+    # TODO implement
+    
+    
+    
+    print (event)
+    
+    # Assume the input message contains a series of customer records in json format :
+    # Example Record :
+    # [ {"name":"John", "age":"23", "city":"Agra"}, {"name":"Steve", "age":"28", "city":"Delhi"}, {"name":"Peter", "age":"32", "city":"Chennai"} ]
+    
+    stringa  = event['Records'][0]['body']
+    
+    #stringa = stringa.replace("}," , "}")
+    
+    # Now converts the string to list 
+    
+    lista = list(stringa.split(",\n"))
+    
+    dict1 = {}
+    
+    #Now do some extra processing to add customer info 
+    # For example final doc becomes like [ "Customer_0" : {"name":"John", "age":"23", "city":"Agra"} , "Customer_1" : {"name":"Steve", "age":"28", "city":"Delhi"}, "Customer_2" : {"name":"Peter", "age":"32", "city":"Chennai"} ]
+    
+    customer_no = 0
+   
+   # final_json_string = ''
+    
+    for item in lista:
+        #final_json_string = final_json_string + "\"customer_" + str(customer_no) + "\" :" + "\"" + str(item) + "\""
+        customer_string = "customer_" + str(customer_no)
+        dict2 = {customer_string : item}
+        dict1.update(dict2)
+        customer_no = customer_no + 1
+        
+    print (dict1)
+    
+    
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda!')
+    }
