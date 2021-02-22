@@ -1,0 +1,129 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author Buddhadev Choudhury : 2020 / October #
+import psycopg2
+import sys
+
+
+
+# Read_conn() : Reads the configuration and initializes global db connection details
+
+def read_conn():
+  file1 = open("/home/ec2-user/source_python/conn_details.txt", 'r')
+  Lines = file1.readlines()
+  for line in Lines:
+
+    str = line
+    #skipping if a comment #
+    if (str[0:1] != '#'):
+     # Handles blank line #
+       if (str != "\n"):
+           first_word = str.split()[0]
+           if  ( first_word.upper() == "DATABASE" or first_word.upper() == 'DB'):
+                global db
+                db = line.split('=')[1].lstrip().rstrip()
+           elif ( first_word.upper() == "PORT" ):
+                global port1
+                port1 = line.split('=')[1].lstrip().rstrip()
+           elif ( first_word.upper() == "HOST" ):
+                global host1
+                host1 = line.split('=')[1].lstrip().rstrip().rstrip()
+           elif ( first_word.upper() == "USER" ):
+                global user1
+                user1 = line.split('=')[1].lstrip().rstrip()
+           elif ( first_word.upper() == "SECRET" or first_word.upper() == 'PASSWORD'):
+                global secret
+                secret = line.split('=')[1].lstrip().rstrip()
+
+# End read_conn():
+
+
+# Execute query and create HTML method() #
+
+def execute_and_html_query(query):
+
+  try:
+    cur.execute(query)
+
+    result= cur.fetchall()
+
+    colnames = [desc[0] for desc in cur.description]
+    print("\n\n================================================\n\n")
+    print(result)
+    print("\n\n================================================\n\n")
+
+    print(colnames)
+    print("------------------------------------------\n")
+    for row in result:
+        print(row[0],row[1])
+
+# create the HTML part now #
+    global strTable
+    for i in colnames:
+        strTable = strTable + "<th>" + str(i) + "</th>"
+    strTable = strTable + "</tr>"
+
+    strRW = ""
+    no_of_cols = len(colnames)
+
+    for row in result:
+        strRW = strRW + "<tr>"
+        for coldat in row:
+            strRW = strRW + "<td>"+ str(coldat) + "</td>"
+        strRW =strRW + "</tr>"
+    strTable = strTable + strRW
+
+  except psycopg2.DatabaseError as e:
+
+    print(f'Error {e}')
+    sys.exit(1)
+
+# END Execute query and create HTML method() #
+# ------------------------------------------------- #
+
+
+# Main Function
+# -----------------------
+
+def main():
+
+  try:
+    con = None
+    read_conn()
+
+    con = psycopg2.connect(database=db, user=user1,password=secret,host=host1,port=port1)
+    print ("DB is %s     user is %s         password is %s                host is %s\n ------------------------------- \n" %(db,user1,secret,host1))
+
+    #con = psycopg2.connect(database='test', user='buddha',password='xxx',host='testpitr.xxxx.us-west-2.rds.amazonaws.com',port=5432)
+
+    global cur
+    cur = con.cursor()
+
+# Initialze the HTML part now #
+    global strTable
+    strTable = "<html><table><tr>"
+    query = ['select * from test', 'select * from pg_stat_activity', 'select * from pg_locks']
+
+# call execute method #
+
+    for q in query:
+        execute_and_html_query(q)
+    strTable = strTable + "</table></html>"
+    print ("\n\n ======================================================================== \n\n")
+    print (strTable)
+
+  except psycopg2.DatabaseError as e:
+
+    print(f'Error {e}')
+    sys.exit(1)
+
+  finally:
+
+    if con:
+        con.close()
+
+# END of main() :
+# ----------------------
+
+if __name__ == "__main__":
+    main()

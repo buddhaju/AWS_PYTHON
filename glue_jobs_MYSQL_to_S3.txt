@@ -1,0 +1,43 @@
+import sys
+from awsglue.transforms import *
+from awsglue.utils import getResolvedOptions
+from pyspark.context import SparkContext
+from awsglue.context import GlueContext
+from awsglue.job import Job
+
+## @params: [JOB_NAME]
+args = getResolvedOptions(sys.argv, ['JOB_NAME'])
+
+sc = SparkContext()
+glueContext = GlueContext(sc)
+spark = glueContext.spark_session
+
+
+job = Job(glueContext)
+job.init(args['JOB_NAME'], args)
+
+connection_mysql5_options = {
+    "url": "jdbc:mysql://aurora-mysql.cym9kvvkhwbn.us-west-2.rds.amazonaws.com:3306/auroramysql",
+    "dbtable": "DMSTEST",
+    "user": "buddha",
+    "password": "xxxxxxxxxxx"}
+    
+    
+    
+df_mysql5 = glueContext.create_dynamic_frame.from_options(connection_type="mysql",connection_options=connection_mysql5_options)
+
+# This creates multiple files :
+#glueContext.write_dynamic_frame.from_options(frame = df_mysql5,connection_type = "s3",connection_options = {"path": "s3://buddha-emr/examples/output"},format = "parquet")
+
+#glueContext.write_dynamic_frame.from_options(frame = df_mysql5,connection_type = "s3",connection_options = {"path": "s3://buddha-emr/examples/output"},format = "parquet")
+
+
+# This creates single files :
+df_mysql5_single = df_mysql5.toDF().repartition(1)
+df_mysql5_single.write.parquet('s3://buddha-emr/examples/output/dmstest')
+
+
+
+
+
+job.commit()

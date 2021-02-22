@@ -1,0 +1,36 @@
+import json
+import sys
+
+def flatten_json(base_json, basek):
+    flat_json = {}
+    for key,val in base_json.items():
+        key = basek + key
+        if isinstance(val, dict):
+           key1= key+'.'
+           print(key1)
+           flat_json.update(flatten_json(val, key1))
+
+        else:
+            flat_json[key] = val
+    return flat_json
+
+#test = {'a': 1, 'c': {'a': 2, 'b': {'x': 5, 'y' : 10}}, 'd': [1, 2, 3]}
+#test = {'name': 'abcd', 'age': 30, 'addr': 'Bellevue', 'address': {'city': 'Bellevue', 'state': 'WA', 'Country': 'USA'}}
+#print(flatten_json(test,''))
+
+def main():
+    inputjson_file= sys.argv[1]
+    flatten_file = sys.argv[2]
+    fp = open(inputjson_file)
+    basejson = json.load(fp)
+    flat_json=flatten_json(basejson,'')
+    print (flat_json)
+    with open(flatten_file, "w") as outfile:
+         json.dump(flat_json, outfile)
+
+
+# END of main() :
+# ----------------------
+
+if __name__ == "__main__":
+    main()
